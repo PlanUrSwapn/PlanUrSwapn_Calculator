@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>PlanUrSwapn | Goal Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2240;
+  --blue:#1a56db;
+  --blue-lt:#dbeafe;
+  --gold:#f59e0b;
+  --gold-lt:#fef3c7;
+  --green:#059669;
+  --green-lt:#d1fae5;
+  --red:#dc2626;
+  --red-lt:#fee2e2;
+  --orange:#ea580c;
+  --bg:#f0f4ff;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --muted:#64748b;
+  --input-bg:#fffbeb;
+  --input-border:#f59e0b;
+  --radius:16px;
+  --shadow:0 4px 24px rgba(15,34,64,.10);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Sora',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:40px;
+  background-image:
+    radial-gradient(ellipse at 0% 0%,rgba(26,86,219,.08) 0%,transparent 55%),
+    radial-gradient(ellipse at 100% 100%,rgba(245,158,11,.07) 0%,transparent 55%);
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--navy);
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+.brand{
+  font-size:18px;font-weight:800;color:#fff;
+  letter-spacing:-.02em;
+}
+.brand span{color:var(--gold)}
+.tagline{font-size:10px;color:rgba(255,255,255,.5);font-weight:300;letter-spacing:.05em}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;
+  padding:32px 20px 24px;
+}
+.hero h1{
+  font-size:clamp(1.5rem,5vw,2.2rem);
+  font-weight:800;color:var(--navy);
+  line-height:1.2;letter-spacing:-.03em;
+}
+.hero h1 em{color:var(--blue);font-style:normal}
+.hero p{
+  margin-top:10px;font-size:13px;color:var(--muted);
+  font-family:'Noto Sans Devanagari',sans-serif;
+  line-height:1.7;
+}
+
+/* ── GOAL TABS — vertical ── */
+.tabs-wrap{
+  padding:0 16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:20px;
+}
+.tab-btn{
+  width:100%;
+  padding:12px 18px;
+  border-radius:12px;
+  border:2px solid var(--border);
+  background:#fff;
+  font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer;
+  transition:all .2s;
+  text-align:left;
+  display:flex;align-items:center;gap:10px;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+  touch-action:manipulation;
+}
+.tab-btn:hover{border-color:var(--blue);color:var(--navy)}
+.tab-btn.active{
+  background:var(--navy);color:#fff;
+  border-color:var(--navy);
+  box-shadow:0 4px 12px rgba(15,34,64,.25);
+}
+.tab-btn .tab-arrow{
+  margin-left:auto;
+  opacity:0;transition:opacity .2s;
+  font-size:12px;
+}
+.tab-btn.active .tab-arrow{opacity:1}
+
+/* ── CARDS ── */
+.container{padding:0 16px}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  animation:fadeUp .4s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@-webkit-keyframes fadeUp{from{opacity:0;-webkit-transform:translateY(16px)}to{opacity:1;-webkit-transform:translateY(0)}}
+
+.card-head{
+  background:linear-gradient(135deg,var(--navy) 0%,#1e3a8a 100%);
+  padding:16px 20px;
+  display:flex;align-items:center;gap:12px;
+}
+.card-head .icon{
+  width:40px;height:40px;border-radius:12px;
+  background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.card-head h2{font-size:15px;font-weight:700;color:#fff}
+.card-head p{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;
+  font-family:'Noto Sans Devanagari',sans-serif}
+
+.card-body{padding:20px}
+
+/* ── INPUTS ── */
+.field{margin-bottom:16px}
+.field label{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--navy);margin-bottom:6px;
+  font-family:'Noto Sans Devanagari',sans-serif;
+  letter-spacing:.02em;
+}
+.field label span{color:var(--muted);font-weight:400}
+.input-wrap{position:relative}
+.prefix{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:13px;font-weight:600;color:var(--muted);pointer-events:none;
+}
+.suffix{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:12px;font-weight:600;color:var(--gold);pointer-events:none;
+}
+input[type=number],input[type=text]{
+  width:100%;padding:12px 40px 12px 28px;
+  border:2px solid var(--input-border);
+  border-radius:10px;
+  background:var(--input-bg);
+  font-family:'Sora',sans-serif;
+  font-size:14px;font-weight:600;color:var(--text);
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;
+}
+input[type=number]:focus,input[type=text]:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(26,86,219,.12);
+  background:#fff;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* ── CALCULATE BUTTON ── */
+.calc-btn{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,var(--navy),var(--blue));
+  color:#fff;border:none;border-radius:12px;
+  font-family:'Sora',sans-serif;
+  font-size:15px;font-weight:700;
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(26,86,219,.35);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:.01em;
+  margin-top:4px;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+  touch-action:manipulation;
+}
+.calc-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(26,86,219,.2)}
+
+/* ── RESULTS ── */
+.results{display:none;animation:fadeUp .35s ease both;-webkit-animation:fadeUp .35s ease both}
+.results.show{display:block}
+
+.result-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;margin-bottom:12px;
+}
+.result-box{
+  background:var(--green-lt);
+  border-radius:12px;padding:14px 12px;
+  border:1px solid rgba(5,150,105,.15);
+  text-align:center;
+}
+.result-box.full{grid-column:1/-1}
+.result-box.highlight{
+  background:linear-gradient(135deg,var(--navy),#1e3a8a);
+  border:none;
+}
+.result-box .r-label{
+  font-size:10px;font-weight:600;color:var(--muted);
+  font-family:'Noto Sans Devanagari',sans-serif;
+  letter-spacing:.04em;text-transform:uppercase;
+  margin-bottom:4px;
+}
+.result-box.highlight .r-label{color:rgba(255,255,255,.6)}
+.result-box .r-val{
+  font-size:18px;font-weight:800;color:var(--green);
+  letter-spacing:-.02em;line-height:1;
+}
+.result-box.highlight .r-val{color:var(--gold);font-size:22px}
+.result-box .r-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.result-box.highlight .r-sub{color:rgba(255,255,255,.5)}
+
+.status-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:99px;
+  font-size:12px;font-weight:600;
+  font-family:'Noto Sans Devanagari',sans-serif;
+}
+.status-green{background:var(--green-lt);color:var(--green)}
+.status-orange{background:#fff7ed;color:var(--orange)}
+.status-red{background:var(--red-lt);color:var(--red)}
+
+/* ── DASHBOARD ── */
+.dash-card .card-head{
+  background:linear-gradient(135deg,#064e3b,var(--green));
+}
+.dash-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.dash-row:last-child{border-bottom:none}
+.dash-goal{font-size:13px;font-weight:600;color:var(--navy)}
+.dash-goal small{display:block;font-size:10px;color:var(--muted);font-weight:400;
+  font-family:'Noto Sans Devanagari',sans-serif}
+.dash-sip{text-align:right}
+.dash-sip .amt{font-size:14px;font-weight:800;color:var(--green)}
+.dash-sip .lbl{font-size:9px;color:var(--muted);font-weight:400}
+.dash-total{
+  background:var(--navy);border-radius:12px;
+  padding:14px 16px;margin-top:12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.dash-total .tl{font-size:12px;font-weight:600;color:rgba(255,255,255,.7);
+  font-family:'Noto Sans Devanagari',sans-serif}
+.dash-total .tv{font-size:20px;font-weight:800;color:var(--gold)}
+
+/* ── DISCLAIMER ── */
+.disclaimer{
+  margin:20px 16px 0;
+  background:#fff;
+  border-radius:12px;
+  padding:14px 16px;
+  border-left:3px solid var(--gold);
+  font-size:10px;color:var(--muted);
+  line-height:1.6;
+  font-family:'Noto Sans Devanagari',sans-serif;
+}
+.disclaimer strong{color:var(--orange);font-size:11px}
+
+/* ── WATERMARK ── */
+.watermark{
+  text-align:center;margin-top:28px;
+  font-size:13px;font-weight:700;
+  color:rgba(15,34,64,.18);letter-spacing:.15em;
+  font-style:italic;
+  user-select:none;pointer-events:none;
+}
+
+/* ── RESPONSIVE ── */
+@media(min-width:480px){
+  .container{max-width:480px;margin:0 auto}
+  .tabs-wrap{max-width:480px;margin:0 auto 20px}
+  .hero{max-width:480px;margin:0 auto}
+}
+</style>
+</head>
+<body>
+
+<!-- WhatsApp/in-app browser warning — no JS needed, pure HTML+CSS -->
+<div style="background:#ff6b00;color:#fff;padding:12px 16px;text-align:center;font-family:sans-serif;font-size:13px;font-weight:600;line-height:1.5;position:sticky;top:0;z-index:999;">
+  ⚠️ WhatsApp मध्ये हे calculator चालणार नाही.<br/>
+  <span style="font-size:12px;font-weight:400;">वरती ••• किंवा Safari icon टच करा → <strong>"Open in Safari"</strong> निवडा</span>
+</div>
+
+<div class="topbar">
+  <div>
+    <div class="brand">Plan<span>Ur</span>Swapn</div>
+    <div class="tagline">PERSONAL FINANCE GOAL PLANNER</div>
+  </div>
+  <div style="font-size:22px">💰</div>
+</div>
+
+<div class="hero">
+  <h1>तुमच्या <em>स्वप्नांसाठी</em><br/>बचत किती?</h1>
+  <p>4 goals · 4 inputs · सगळं automatic calculate</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap" id="tabs-wrap">
+  <button class="tab-btn active" data-tab="dashboard">📊 Dashboard<span class="tab-arrow">▶</span></button>
+  <button class="tab-btn" data-tab="emergency">🆘 Emergency Fund<span class="tab-arrow">▶</span></button>
+  <button class="tab-btn" data-tab="education">🎓 मुलांचे शिक्षण<span class="tab-arrow">▶</span></button>
+  <button class="tab-btn" data-tab="retirement">🏖 Retirement<span class="tab-arrow">▶</span></button>
+  <button class="tab-btn" data-tab="vacation">✈ Vacation<span class="tab-arrow">▶</span></button>
+</div>
+
+<div class="container">
+
+  <!-- ── DASHBOARD ── -->
+  <div id="tab-dashboard" class="goal-tab">
+    <div class="card dash-card">
+      <div class="card-head">
+        <div class="icon">📊</div>
+        <div><h2>सर्व ध्येयांचा सारांश</h2><p>Goals Dashboard</p></div>
+      </div>
+      <div class="card-body">
+        <div id="dash-content">
+          <p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;
+            font-family:'Noto Sans Devanagari',sans-serif">
+            आधी प्रत्येक goal calculate करा, मग इथे summary दिसेल.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMERGENCY FUND ── -->
+  <div id="tab-emergency" class="goal-tab" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">🆘</div>
+        <div><h2>Emergency Fund</h2><p>आपत्कालीन निधी</p></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>💰 आजची रक्कम <span>| Today's Goal Amount</span></label>
+          <div class="input-wrap">
+            <span class="prefix">₹</span>
+            <input type="number" id="e-amt" value="300000" placeholder="300000"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📅 लक्ष्य वर्ष <span>| Target Year</span></label>
+          <div class="input-wrap">
+            <span class="prefix" style="left:10px;font-size:16px">📅</span>
+            <input type="number" id="e-yr" value="2028" placeholder="2028" style="padding-left:36px"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📈 अपेक्षित परतावा <span>| Nominal Return %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="e-ret" value="7" placeholder="12" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>📉 महागाई दर <span>| Inflation Rate %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="e-inf" value="6" placeholder="6" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <button class="calc-btn" data-goal="emergency">Calculate करा →</button>
+        <div id="res-emergency" class="results" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EDUCATION ── -->
+  <div id="tab-education" class="goal-tab" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">🎓</div>
+        <div><h2>मुलांचे शिक्षण</h2><p>Children's Education Fund</p></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>💰 आजची रक्कम <span>| Today's Goal Amount</span></label>
+          <div class="input-wrap">
+            <span class="prefix">₹</span>
+            <input type="number" id="edu-amt" value="2000000"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📅 लक्ष्य वर्ष <span>| Target Year</span></label>
+          <div class="input-wrap">
+            <span class="prefix" style="left:10px;font-size:16px">📅</span>
+            <input type="number" id="edu-yr" value="2041" style="padding-left:36px"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📈 अपेक्षित परतावा <span>| Nominal Return %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="edu-ret" value="12" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>📉 महागाई दर <span>| Inflation Rate %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="edu-inf" value="6" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <button class="calc-btn" data-goal="education">Calculate करा →</button>
+        <div id="res-education" class="results" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RETIREMENT ── -->
+  <div id="tab-retirement" class="goal-tab" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">🏖</div>
+        <div><h2>Retirement</h2><p>सेवानिवृत्ती निधी</p></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>💰 आजची रक्कम <span>| Today's Goal Amount</span></label>
+          <div class="input-wrap">
+            <span class="prefix">₹</span>
+            <input type="number" id="ret-amt" value="10000000"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📅 लक्ष्य वर्ष <span>| Target Year</span></label>
+          <div class="input-wrap">
+            <span class="prefix" style="left:10px;font-size:16px">📅</span>
+            <input type="number" id="ret-yr" value="2051" style="padding-left:36px"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📈 अपेक्षित परतावा <span>| Nominal Return %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="ret-ret" value="12" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>📉 महागाई दर <span>| Inflation Rate %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="ret-inf" value="6" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <button class="calc-btn" data-goal="retirement">Calculate करा →</button>
+        <div id="res-retirement" class="results" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VACATION ── -->
+  <div id="tab-vacation" class="goal-tab" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">✈</div>
+        <div><h2>Vacation</h2><p>प्रवास निधी</p></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>💰 आजची रक्कम <span>| Today's Goal Amount</span></label>
+          <div class="input-wrap">
+            <span class="prefix">₹</span>
+            <input type="number" id="vac-amt" value="150000"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📅 लक्ष्य वर्ष <span>| Target Year</span></label>
+          <div class="input-wrap">
+            <span class="prefix" style="left:10px;font-size:16px">📅</span>
+            <input type="number" id="vac-yr" value="2028" style="padding-left:36px"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📈 अपेक्षित परतावा <span>| Nominal Return %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="vac-ret" value="7" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>📉 महागाई दर <span>| Inflation Rate %</span></label>
+          <div class="input-wrap">
+            <span class="prefix">%</span>
+            <input type="number" id="vac-inf" value="6" step="0.1"/>
+            <span class="suffix">p.a.</span>
+          </div>
+        </div>
+        <button class="calc-btn" data-goal="vacation">Calculate करा →</button>
+        <div id="res-vacation" class="results" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /container -->
+
+<div class="disclaimer">
+  <strong>⚠️ Disclaimer</strong><br/>
+  Mutual Funds are subject to market risk. Please read all scheme related documents carefully before investing. | म्युच्युअल फंड गुंतवणूक बाजार जोखमीच्या अधीन आहे. गुंतवणूक करण्यापूर्वी सर्व योजना संबंधित कागदपत्रे काळजीपूर्वक वाचा.
+</div>
+
+<div class="watermark">✦ PlanUrSwapn ✦</div>
+
+<script>
+var CURRENT_YEAR = 2026;
+var sipResults = {};
+
+var goalMap = {
+  emergency:  {pfx:'e',   label:'Emergency Fund',  sub:'आपत्कालीन निधी'},
+  education:  {pfx:'edu', label:'मुलांचे शिक्षण',   sub:'Education Fund'},
+  retirement: {pfx:'ret', label:'Retirement',        sub:'सेवानिवृत्ती'},
+  vacation:   {pfx:'vac', label:'Vacation',           sub:'प्रवास निधी'}
+};
+
+function fmt(n){
+  var num = Math.round(n);
+  if(n >= 10000000) return '\u20B9' + (n/10000000).toFixed(2) + ' Cr';
+  if(n >= 100000)   return '\u20B9' + (n/100000).toFixed(2) + ' L';
+  if(n >= 1000)     return '\u20B9' + (n/1000).toFixed(1) + ' K';
+  return '\u20B9' + num.toString();
+}
+
+function getVal(id){
+  var el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function calculate(goal){
+  var g    = goalMap[goal];
+  var amt  = parseFloat(getVal(g.pfx + '-amt')) || 0;
+  var yr   = parseInt(getVal(g.pfx + '-yr'))    || CURRENT_YEAR;
+  var retP = parseFloat(getVal(g.pfx + '-ret')) || 0;
+  var infP = parseFloat(getVal(g.pfx + '-inf')) || 0;
+
+  var r    = retP / 100;
+  var inf  = infP / 100;
+  var yrs  = Math.max(yr - CURRENT_YEAR, 0);
+
+  var realR = (1 + r) / (1 + inf) - 1;
+  var fv    = amt * Math.pow(1 + inf, yrs);
+
+  var sip = 0;
+  if(yrs > 0){
+    if(r === 0){
+      sip = fv / (yrs * 12);
+    } else {
+      var mr = r / 12;
+      sip = (fv * mr) / (Math.pow(1 + mr, yrs * 12) - 1);
+    }
+  }
+  var annual = sip * 12;
+
+  var statusHtml, statusClass;
+  if(yrs === 0){
+    statusHtml = '\u2705 ध्येय वर्ष आले!'; statusClass = 'status-green';
+  } else if(yrs <= 2){
+    statusHtml = '\uD83D\uDD34 तातडीने सुरू करा'; statusClass = 'status-red';
+  } else if(yrs <= 5){
+    statusHtml = '\uD83D\uDFE0 लवकर सुरू करा'; statusClass = 'status-orange';
+  } else {
+    statusHtml = '\uD83D\uDFE2 वेळ आहे – आताच सुरू करा'; statusClass = 'status-green';
+  }
+
+  sipResults[goal] = {sip: sip, fv: fv, yrs: yrs, label: g.label, sub: g.sub};
+  updateDashboard();
+
+  var el = document.getElementById('res-' + goal);
+  if(!el) return;
+
+  var html = '<div class="result-grid">'
+    + '<div class="result-box highlight full">'
+    +   '<div class="r-label">मासिक SIP लागेल | Monthly SIP Required</div>'
+    +   '<div class="r-val">' + fmt(sip) + '</div>'
+    +   '<div class="r-sub">per month</div>'
+    + '</div>'
+    + '<div class="result-box">'
+    +   '<div class="r-label">Future Value</div>'
+    +   '<div class="r-val" style="font-size:14px;color:var(--blue)">' + fmt(fv) + '</div>'
+    +   '<div class="r-sub">inflation adjusted</div>'
+    + '</div>'
+    + '<div class="result-box">'
+    +   '<div class="r-label">वार्षिक गुंतवणूक</div>'
+    +   '<div class="r-val" style="font-size:14px;color:var(--blue)">' + fmt(annual) + '</div>'
+    +   '<div class="r-sub">per year</div>'
+    + '</div>'
+    + '<div class="result-box">'
+    +   '<div class="r-label">उरलेली वर्षे</div>'
+    +   '<div class="r-val" style="font-size:20px;color:var(--navy)">' + yrs + '</div>'
+    +   '<div class="r-sub">years remaining</div>'
+    + '</div>'
+    + '<div class="result-box">'
+    +   '<div class="r-label">Real Return Rate</div>'
+    +   '<div class="r-val" style="font-size:14px;color:var(--green)">' + (realR*100).toFixed(2) + '%</div>'
+    +   '<div class="r-sub">Fisher Equation</div>'
+    + '</div>'
+    + '</div>'
+    + '<div style="text-align:center">'
+    +   '<span class="status-badge ' + statusClass + '">' + statusHtml + '</span>'
+    + '</div>';
+
+  el.innerHTML = html;
+  el.style.display = 'block';
+  el.style.webkitAnimation = 'none';
+  el.style.animation = 'none';
+  setTimeout(function(){
+    el.style.webkitAnimation = '';
+    el.style.animation = '';
+  }, 10);
+  el.classList.add('show');
+}
+
+function updateDashboard(){
+  var keys = Object.keys(sipResults);
+  var dashContent = document.getElementById('dash-content');
+  if(!dashContent) return;
+  if(keys.length === 0) return;
+
+  var totalSip = 0;
+  var rows = '';
+  for(var i = 0; i < keys.length; i++){
+    var g = keys[i];
+    var d = sipResults[g];
+    totalSip += d.sip;
+    rows += '<div class="dash-row">'
+      + '<div class="dash-goal">' + d.label
+      +   '<small>' + d.sub + ' \u00B7 ' + d.yrs + ' वर्षे</small>'
+      + '</div>'
+      + '<div class="dash-sip">'
+      +   '<div class="amt">' + fmt(d.sip) + '</div>'
+      +   '<div class="lbl">/ month</div>'
+      + '</div>'
+      + '</div>';
+  }
+
+  dashContent.innerHTML = rows
+    + '<div class="dash-total">'
+    +   '<div class="tl">\uD83D\uDCBC एकूण मासिक SIP</div>'
+    +   '<div class="tv">' + fmt(totalSip) + '</div>'
+    + '</div>';
+}
+
+function switchTab(tab, btn){
+  // Hide all tabs
+  var allTabs = document.querySelectorAll('.goal-tab');
+  for(var i = 0; i < allTabs.length; i++){
+    allTabs[i].style.display = 'none';
+  }
+  // Remove active from all buttons
+  var allBtns = document.querySelectorAll('.tab-btn');
+  for(var j = 0; j < allBtns.length; j++){
+    allBtns[j].classList.remove('active');
+  }
+  // Show selected tab
+  var target = document.getElementById('tab-' + tab);
+  if(target){
+    target.style.display = 'block';
+  }
+  // Set active button
+  if(btn){
+    btn.classList.add('active');
+  }
+  if(tab === 'dashboard') updateDashboard();
+  try{ window.scrollTo({top:0, behavior:'smooth'}); } catch(e){ window.scrollTo(0,0); }
+}
+
+// Robust event binding for WhatsApp iOS in-app browser
+// Uses both touchstart and click via event delegation on document
+function bindEvents() {
+  function handleTabClick(target) {
+    var btn = target;
+    // Walk up to find the button with data-tab
+    while (btn && !btn.getAttribute('data-tab')) {
+      btn = btn.parentElement;
+    }
+    if (btn && btn.getAttribute('data-tab')) {
+      var tab = btn.getAttribute('data-tab');
+      switchTab(tab, btn);
+      return true;
+    }
+    return false;
+  }
+
+  function handleCalcClick(target) {
+    var btn = target;
+    while (btn && !btn.getAttribute('data-goal')) {
+      btn = btn.parentElement;
+    }
+    if (btn && btn.getAttribute('data-goal')) {
+      calculate(btn.getAttribute('data-goal'));
+      return true;
+    }
+    return false;
+  }
+
+  // touchstart — fires reliably in WhatsApp iOS browser
+  document.addEventListener('touchstart', function(e) {
+    var t = e.target;
+    if (handleTabClick(t) || handleCalcClick(t)) {
+      e.preventDefault();
+    }
+  }, {passive: false});
+
+  // click — fallback for Chrome/Android/desktop
+  document.addEventListener('click', function(e) {
+    handleTabClick(e.target);
+    handleCalcClick(e.target);
+  });
+}
+
+// Bind all events
+bindEvents();
+
+// Auto-calculate all goals on load
+var goals = ['emergency','education','retirement','vacation'];
+for(var gi = 0; gi < goals.length; gi++){
+  calculate(goals[gi]);
+}
+updateDashboard();
+</script>
+</body>
+</html>
